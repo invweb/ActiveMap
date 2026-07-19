@@ -146,6 +146,7 @@ class MainViewModel(
                 description = description
             )
             repository.insertPlace(place)
+            _places.value = repository.getAllPlacesList()
             generateRecommendations()
         }
     }
@@ -153,6 +154,7 @@ class MainViewModel(
     fun deletePlace(id: Long) {
         scope.launch {
             repository.deletePlace(id)
+            _places.value = repository.getAllPlacesList()
             generateRecommendations()
         }
     }

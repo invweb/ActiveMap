@@ -2,15 +2,18 @@
 
 Kotlin Multiplatform приложение для начинающих — добавляйте места для тренировок, получайте AI-рекомендации, выполняйте ежедневные челленджи и отслеживайте прогресс.
 
-![Main Screen](screenshots/main_screen.png)
+![Main Screen — Map with OSM](screenshots/main_map.png)
+![Add Place Screen](screenshots/add_place.png)
 ![Dark Mode](screenshots/dark_mode.png)
-![Report](screenshots/report_screen.png)
-![Desktop](screenshots/desktop_main.png)
+![Report Screen](screenshots/report_screen.png)
 
 ## Возможности
 
-- **Карта OpenStreetMap** — реальные тайлы с возможностью панорамирования и зума
-- **Добавление мест** — парки, стадионы, залы, улицы с геокоординатами
+- **Карта OpenStreetMap** — реальные тайлы (CartoDB Voyager) с панорамированием и зумом
+- **Маркеры с иконками** — пины на карте с типами мест: 🌳 парк, 🏟 стадион, 💪 зал, 🏃 улица
+- **Добавление мест** — имя, тип, описание; координаты определяются автоматически
+- **Навигация к месту** — кнопка 📍 в списке мест перемещает карту к нему
+- **Удаление мест** — с подтверждением
 - **AI-рекомендации** — 12 встроенных правил (время суток + погода + история активности)
 - **Ежедневные челленджи** — ходьба, бег, растяжка, планка, приседания, кардио
 - **Экспорт отчётов** — Markdown-отчёт за неделю
@@ -57,8 +60,8 @@ ANDROID_HOME=~/Library/Android/sdk ./gradlew :composeApp:installDebug
 commonMain/
 ├── model/          # Place, Activity, Challenge, Recommendation, Report, Weather
 ├── engine/         # 12 правил рекомендаций (RuleEngine + sealed class Rule)
-├── repository/     # SQLDelight DAO + Flow
-├── map/            # OsmTileLoader + OsmMap composable
+├── repository/     # SQLDelight DAO + реактивные Flow
+├── map/            # OsmTileLoader + OsmMap composable (тайлы + маркеры)
 ├── export/         # MarkdownExporter
 ├── platform/       # expect/actual: LocationProvider, WeatherProvider, FileExporter
 ├── ui/
@@ -68,8 +71,8 @@ commonMain/
 │   └── theme/      # Material3 светлая/тёмная тема
 └── viewmodel/      # MainViewModel + Screen sealed class
 
-androidMain/        # AndroidLocationProvider, AndroidFileExporter
-desktopMain/        # DesktopLocationProvider (мок), DesktopFileExporter
+androidMain/        # AndroidLocationProvider, AndroidFileExporter, AndroidImageLoader
+desktopMain/        # DesktopLocationProvider (мок), DesktopFileExporter, DesktopImageLoader
 ```
 
 ## Движок рекомендаций

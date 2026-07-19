@@ -34,6 +34,7 @@ fun App(viewModel: MainViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
+                .windowInsetsPadding(WindowInsets.systemBars)
         ) {
             when (selectedScreen) {
                 is Screen.Map -> MapScreen(viewModel = viewModel)

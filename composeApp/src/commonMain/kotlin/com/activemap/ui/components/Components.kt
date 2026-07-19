@@ -192,6 +192,8 @@ fun PlaceListItem(
     index: Int,
     animationConfig: AnimationConfig,
     onClick: () -> Unit,
+    onNavigate: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var visible by remember { mutableStateOf(false) }
@@ -222,8 +224,7 @@ fun PlaceListItem(
             .graphicsLayer {
                 this.alpha = alpha
                 this.translationY = translateY
-            }
-            .clickable(onClick = onClick),
+            },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -236,48 +237,64 @@ fun PlaceListItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
-                shape = CircleShape,
-                color = when (place.type) {
-                    PlaceType.PARK -> Color(0xFF4CAF50)
-                    PlaceType.STADIUM -> Color(0xFF2196F3)
-                    PlaceType.GYM -> Color(0xFFFF5722)
-                    PlaceType.STREET -> Color(0xFF9C27B0)
-                },
-                modifier = Modifier.size(40.dp)
+            // Content area — clickable
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(onClick = onClick),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(contentAlignment = Alignment.Center) {
+                Surface(
+                    shape = CircleShape,
+                    color = when (place.type) {
+                        PlaceType.PARK -> Color(0xFF4CAF50)
+                        PlaceType.STADIUM -> Color(0xFF2196F3)
+                        PlaceType.GYM -> Color(0xFFFF5722)
+                        PlaceType.STREET -> Color(0xFF9C27B0)
+                    },
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = when (place.type) {
+                                PlaceType.PARK -> "🌳"
+                                PlaceType.STADIUM -> "🏟"
+                                PlaceType.GYM -> "💪"
+                                PlaceType.STREET -> "🏃"
+                            },
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = when (place.type) {
-                            PlaceType.PARK -> "🌳"
-                            PlaceType.STADIUM -> "🏟"
-                            PlaceType.GYM -> "💪"
-                            PlaceType.STREET -> "🏃"
-                        },
-                        fontSize = 18.sp
+                        text = place.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
                     )
+                    Text(
+                        text = "${place.type.name.lowercase().replaceFirstChar { it.uppercase() }} • ${String.format("%.4f", place.latitude)}, ${String.format("%.4f", place.longitude)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                    if (place.description.isNotEmpty()) {
+                        Text(
+                            text = place.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            maxLines = 1
+                        )
+                    }
                 }
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = place.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = "${place.type.name.lowercase().replaceFirstChar { it.uppercase() }} • ${String.format("%.4f", place.latitude)}, ${String.format("%.4f", place.longitude)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-                if (place.description.isNotEmpty()) {
-                    Text(
-                        text = place.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                        maxLines = 1
-                    )
-                }
+            // Navigate button
+            IconButton(onClick = onNavigate, modifier = Modifier.size(40.dp)) {
+                Text("📍", fontSize = 20.sp)
+            }
+            // Delete button
+            IconButton(onClick = onDelete, modifier = Modifier.size(40.dp)) {
+                Text("🗑", fontSize = 20.sp)
             }
         }
     }

@@ -5,9 +5,11 @@ import com.activemap.db.PlaceEntity
 import com.activemap.db.ActivityEntity
 import com.activemap.db.ChallengeEntity
 import com.activemap.model.*
+import app.cash.sqldelight.coroutines.asFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimePeriod
@@ -25,17 +27,11 @@ class SqlDelightRepository(
     private val queries get() = database.activeMapQueries
 
     override fun getAllPlaces(): Flow<List<Place>> {
-        return flow {
-            val entities = queries.selectAllPlaces().executeAsList()
-            emit(entities.map { it.toPlace() })
-        }
+        return queries.selectAllPlaces().asFlow().map { it.executeAsList().map { e -> e.toPlace() } }
     }
 
     override fun getPlacesByType(type: PlaceType): Flow<List<Place>> {
-        return flow {
-            val entities = queries.selectPlacesByType(type.name).executeAsList()
-            emit(entities.map { it.toPlace() })
-        }
+        return queries.selectPlacesByType(type.name).asFlow().map { it.executeAsList().map { e -> e.toPlace() } }
     }
 
     override suspend fun getPlaceById(id: Long): Place? {
@@ -65,10 +61,7 @@ class SqlDelightRepository(
     }
 
     override fun getRecentActivities(): Flow<List<Activity>> {
-        return flow {
-            val entities = queries.selectAllActivities().executeAsList()
-            emit(entities.map { it.toActivity() })
-        }
+        return queries.selectAllActivities().asFlow().map { it.executeAsList().map { e -> e.toActivity() } }
     }
 
     override suspend fun insertActivity(activity: Activity): Long {
@@ -121,17 +114,11 @@ class SqlDelightRepository(
     }
 
     override fun getChallengesForDate(date: LocalDate): Flow<List<Challenge>> {
-        return flow {
-            val entities = queries.selectChallengesByDate(date.toString()).executeAsList()
-            emit(entities.map { it.toChallenge() })
-        }
+        return queries.selectChallengesByDate(date.toString()).asFlow().map { it.executeAsList().map { e -> e.toChallenge() } }
     }
 
     override fun getRecentChallenges(): Flow<List<Challenge>> {
-        return flow {
-            val entities = queries.selectRecentChallenges().executeAsList()
-            emit(entities.map { it.toChallenge() })
-        }
+        return queries.selectRecentChallenges().asFlow().map { it.executeAsList().map { e -> e.toChallenge() } }
     }
 
     override suspend fun insertChallenge(challenge: Challenge): Long {
