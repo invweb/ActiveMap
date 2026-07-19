@@ -5,6 +5,7 @@ Kotlin Multiplatform приложение для начинающих — доб
 ![Main Screen](screenshots/main_screen.png)
 ![Dark Mode](screenshots/dark_mode.png)
 ![Report](screenshots/report_screen.png)
+![Desktop](screenshots/desktop_main.png)
 
 ## Возможности
 

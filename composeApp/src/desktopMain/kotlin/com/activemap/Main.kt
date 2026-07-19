@@ -13,6 +13,8 @@ import com.activemap.viewmodel.MainViewModel
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 
 fun main() = application {
+    val dbFile = java.io.File("activemap.db")
+    if (dbFile.exists()) dbFile.delete()
     val driver = JdbcSqliteDriver("jdbc:sqlite:activemap.db")
     ActiveMapDatabase.Schema.create(driver)
     val database = ActiveMapDatabase(driver)

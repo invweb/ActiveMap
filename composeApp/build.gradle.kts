@@ -48,6 +48,7 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.sqldelight.driver.sqlite)
                 implementation(libs.ktor.client.okhttp)
+                implementation(libs.coroutines.swing)
             }
         }
 

@@ -20,7 +20,6 @@ import com.activemap.model.Place
 import com.activemap.model.PlaceType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.math.*
 
 data class OsmState(
@@ -74,9 +73,7 @@ fun OsmMap(
                 }
             }
             if (newTiles.isNotEmpty()) {
-                withContext(Dispatchers.Main) {
-                    tileBitmaps = tileBitmaps + newTiles
-                }
+                tileBitmaps = tileBitmaps + newTiles
             }
         }
     }
