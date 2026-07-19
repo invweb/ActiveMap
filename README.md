@@ -2,10 +2,10 @@
 
 Kotlin Multiplatform app for beginners — add workout locations, get AI recommendations, complete daily challenges, and track your progress.
 
-![Main Screen — Map with OSM](screenshots/main_map.png)
-![Add Place Screen](screenshots/add_place.png)
-![Dark Mode](screenshots/dark_mode.png)
-![Report Screen](screenshots/report_screen.png)
+![Main Screen — Map with markers](docs/screenshots/map_with_marker.png)
+![Places List](docs/screenshots/places_list.png)
+![Add Place Screen](docs/screenshots/add_place.png)
+![Map Overview](docs/screenshots/map.png)
 
 ## Features
 

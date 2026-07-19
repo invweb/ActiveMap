@@ -1,6 +1,8 @@
 package com.activemap.map
 
 import androidx.compose.ui.graphics.ImageBitmap
+import java.net.HttpURLConnection
+import java.net.URL
 
 expect suspend fun loadImageBitmap(bytes: ByteArray): ImageBitmap
 
@@ -19,8 +21,8 @@ object OsmTileLoader {
         for (template in tileServers) {
             val urlStr = template.replace("{z}", "$z").replace("{x}", "$x").replace("{y}", "$y")
             try {
-                val url = java.net.URL(urlStr)
-                val conn = url.openConnection() as java.net.HttpURLConnection
+                val url = URL(urlStr)
+                val conn = url.openConnection() as HttpURLConnection
                 conn.connectTimeout = 8000
                 conn.readTimeout = 8000
                 conn.setRequestProperty("User-Agent", "ActiveMap/1.0")
@@ -38,6 +40,7 @@ object OsmTileLoader {
                 }
                 conn.disconnect()
             } catch (e: Exception) {
+                android.util.Log.d("TileLoader", "Error: ${e.message}")
                 continue
             }
         }

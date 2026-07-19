@@ -60,12 +60,37 @@ class MainViewModel(
     private val _selectedScreen = MutableStateFlow<Screen>(Screen.Map)
     val selectedScreen: StateFlow<Screen> = _selectedScreen.asStateFlow()
 
+    private val _osmState = MutableStateFlow(com.activemap.map.OsmState())
+    val osmState: StateFlow<com.activemap.map.OsmState> = _osmState.asStateFlow()
+
+    private val _navigateTo = MutableStateFlow<Pair<Double, Double>?>(null)
+    val navigateTo: StateFlow<Pair<Double, Double>?> = _navigateTo.asStateFlow()
+
+    private val _pendingCoords = MutableStateFlow<Pair<Double, Double>?>(null)
+    val pendingCoords: StateFlow<Pair<Double, Double>?> = _pendingCoords.asStateFlow()
+
     init {
         loadData()
     }
 
     fun selectScreen(screen: Screen) {
         _selectedScreen.value = screen
+    }
+
+    fun updateOsmState(state: com.activemap.map.OsmState) {
+        _osmState.value = state
+    }
+
+    fun consumeNavigation() {
+        _navigateTo.value = null
+    }
+
+    fun setPendingCoords(lat: Double, lon: Double) {
+        _pendingCoords.value = lat to lon
+    }
+
+    fun consumePendingCoords() {
+        _pendingCoords.value = null
     }
 
     fun toggleTheme() {
@@ -147,6 +172,7 @@ class MainViewModel(
             )
             repository.insertPlace(place)
             _places.value = repository.getAllPlacesList()
+            _navigateTo.value = latitude to longitude
             generateRecommendations()
         }
     }

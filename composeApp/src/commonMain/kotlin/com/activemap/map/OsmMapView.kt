@@ -39,6 +39,13 @@ fun latToTileY(lat: Double, zoom: Int): Double {
     return (1.0 - ln(tan(latRad) + 1.0 / cos(latRad)) / PI) / 2.0 * 2.0.pow(zoom.toDouble())
 }
 
+fun tileXToLon(tileX: Double, zoom: Int): Double = tileX / 2.0.pow(zoom.toDouble()) * 360.0 - 180.0
+
+fun tileYToLat(tileY: Double, zoom: Int): Double {
+    val n = PI - 2.0 * PI * tileY / 2.0.pow(zoom.toDouble())
+    return Math.toDegrees(atan(sinh(n)))
+}
+
 private fun placeIcon(type: PlaceType): String = when (type) {
     PlaceType.PARK -> "🌳"
     PlaceType.STADIUM -> "🏟"
@@ -137,27 +144,30 @@ fun OsmMap(
 }
 
 private fun DrawScope.drawPlaceMarker(mx: Float, my: Float, color: Color, icon: String, textMeasurer: androidx.compose.ui.text.TextMeasurer) {
-    // Glow
-    drawCircle(color.copy(alpha = 0.3f), radius = 32f, center = Offset(mx, my))
+    // Outer glow
+    drawCircle(color.copy(alpha = 0.25f), radius = 40f, center = Offset(mx, my))
+    // White border ring
+    drawCircle(Color.White, radius = 24f, center = Offset(mx, my - 6f))
+    drawCircle(Color.White, radius = 24f, center = Offset(mx, my - 6f))
     // Pin body
-    drawCircle(color, radius = 18f, center = Offset(mx, my - 4f))
-    // Pin tip
+    drawCircle(color, radius = 20f, center = Offset(mx, my - 6f))
+    // Pin tip (triangle)
     drawPath(
         path = androidx.compose.ui.graphics.Path().apply {
-            moveTo(mx - 8f, my + 12f)
-            lineTo(mx + 8f, my + 12f)
-            lineTo(mx, my + 26f)
+            moveTo(mx - 10f, my + 10f)
+            lineTo(mx + 10f, my + 10f)
+            lineTo(mx, my + 28f)
             close()
         },
         color = color
     )
-    // White background for icon
-    drawCircle(Color.White, radius = 12f, center = Offset(mx, my - 4f))
+    // Inner white circle
+    drawCircle(Color.White, radius = 13f, center = Offset(mx, my - 6f))
     // Icon text
-    val style = TextStyle(fontSize = 14.sp)
+    val style = TextStyle(fontSize = 16.sp)
     val measured = textMeasurer.measure(icon, style)
     drawText(
         textLayoutResult = measured,
-        topLeft = Offset(mx - measured.size.width / 2f, my - 4f - measured.size.height / 2f)
+        topLeft = Offset(mx - measured.size.width / 2f, my - 6f - measured.size.height / 2f)
     )
 }

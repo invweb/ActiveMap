@@ -42,10 +42,18 @@ fun MapScreen(
     val currentWeather = viewModel.currentWeather.collectAsState()
     val isDarkTheme = viewModel.isDarkTheme.collectAsState()
 
-    var osmState by remember { mutableStateOf(OsmState()) }
+    val osmState by viewModel.osmState.collectAsState()
     var selectedPlace by remember { mutableStateOf<Place?>(null) }
     var showWorkoutDialog by remember { mutableStateOf(false) }
     var placeToDelete by remember { mutableStateOf<Place?>(null) }
+
+    val navigateTo = viewModel.navigateTo.collectAsState()
+    LaunchedEffect(navigateTo.value) {
+        navigateTo.value?.let { (lat, lon) ->
+            viewModel.updateOsmState(OsmState(centerLat = lat, centerLon = lon, zoom = 16))
+            viewModel.consumeNavigation()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.generateDailyChallenge()
@@ -61,23 +69,23 @@ fun MapScreen(
         Box(modifier = Modifier
             .fillMaxSize()
             .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
+                    detectDragGestures { change, dragAmount ->
                     change.consume()
                     val n = 2.0.pow(osmState.zoom.toDouble())
                     val tileSize = 256f
                     val pixelsPerDegree = tileSize * n / 360.0
                     val lonDelta = dragAmount.x / pixelsPerDegree
                     val latDelta = dragAmount.y / pixelsPerDegree
-                    osmState = osmState.copy(
+                    viewModel.updateOsmState(osmState.copy(
                         centerLon = (osmState.centerLon - lonDelta).coerceIn(-180.0, 180.0),
                         centerLat = (osmState.centerLat + latDelta).coerceIn(-85.0, 85.0)
-                    )
+                    ))
                 }
             }
         ) {
             OsmMap(
                 state = osmState,
-                onStateChanged = { osmState = it },
+                onStateChanged = { viewModel.updateOsmState(it) },
                 places = places,
                 modifier = Modifier.fillMaxSize()
             )
@@ -89,19 +97,19 @@ fun MapScreen(
                     .padding(end = 12.dp, top = 90.dp)
             ) {
                 FloatingActionButton(
-                    onClick = { osmState = osmState.copy(zoom = (osmState.zoom + 1).coerceAtMost(19)) },
+                    onClick = { viewModel.updateOsmState(osmState.copy(zoom = (osmState.zoom + 1).coerceAtMost(19))) },
                     modifier = Modifier.size(40.dp),
                     containerColor = MaterialTheme.colorScheme.surface
                 ) { Text("+", fontSize = 20.sp) }
                 Spacer(modifier = Modifier.height(6.dp))
                 FloatingActionButton(
-                    onClick = { osmState = osmState.copy(zoom = (osmState.zoom - 1).coerceAtLeast(1)) },
+                    onClick = { viewModel.updateOsmState(osmState.copy(zoom = (osmState.zoom - 1).coerceAtLeast(1))) },
                     modifier = Modifier.size(40.dp),
                     containerColor = MaterialTheme.colorScheme.surface
                 ) { Text("-", fontSize = 20.sp) }
                 Spacer(modifier = Modifier.height(6.dp))
                 FloatingActionButton(
-                    onClick = { osmState = OsmState() },
+                    onClick = { viewModel.updateOsmState(OsmState()) },
                     modifier = Modifier.size(40.dp),
                     containerColor = MaterialTheme.colorScheme.primary
                 ) { Text("📍", fontSize = 16.sp) }
@@ -200,13 +208,16 @@ fun MapScreen(
                         index = index,
                         animationConfig = animationConfig,
                         onClick = { selectedPlace = place; showWorkoutDialog = true },
-                        onNavigate = { osmState = osmState.copy(centerLat = place.latitude, centerLon = place.longitude, zoom = 16) },
+                        onNavigate = { viewModel.updateOsmState(osmState.copy(centerLat = place.latitude, centerLon = place.longitude, zoom = 16)) },
                         onDelete = { placeToDelete = place }
                     )
                 }
                 item {
                     Button(
-                        onClick = { viewModel.selectScreen(com.activemap.viewmodel.Screen.AddPlace) },
+                        onClick = {
+                            viewModel.setPendingCoords(osmState.centerLat, osmState.centerLon)
+                            viewModel.selectScreen(com.activemap.viewmodel.Screen.AddPlace)
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     ) { Text("+ Add New Place") }

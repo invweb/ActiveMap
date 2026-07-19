@@ -21,14 +21,19 @@ fun AddPlaceScreen(
     modifier: Modifier = Modifier
 ) {
     val animationConfig by viewModel.animationConfig.collectAsState()
+    val pendingCoords = viewModel.pendingCoords.collectAsState()
+    val initialCoords = pendingCoords.value
     var name by remember { mutableStateOf("") }
-    var latitude by remember { mutableStateOf("55.7558") }
-    var longitude by remember { mutableStateOf("37.6173") }
+    var latitude by remember { mutableStateOf(initialCoords?.first?.toString() ?: "55.7558") }
+    var longitude by remember { mutableStateOf(initialCoords?.second?.toString() ?: "37.6173") }
     var selectedType by remember { mutableStateOf(PlaceType.PARK) }
     var description by remember { mutableStateOf("") }
     var visible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) { visible = true }
+    LaunchedEffect(Unit) {
+        visible = true
+        viewModel.consumePendingCoords()
+    }
 
     Column(
         modifier = modifier
@@ -68,16 +73,14 @@ fun AddPlaceScreen(
                     Row(modifier = Modifier.fillMaxWidth().then(mod), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedTextField(
                             value = latitude,
-                            onValueChange = {},
-                            enabled = false,
+                            onValueChange = { latitude = it },
                             label = { Text("Latitude") },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp)
                         )
                         OutlinedTextField(
                             value = longitude,
-                            onValueChange = {},
-                            enabled = false,
+                            onValueChange = { longitude = it },
                             label = { Text("Longitude") },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp)

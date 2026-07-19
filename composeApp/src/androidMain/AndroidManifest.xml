@@ -10,6 +10,7 @@
         android:allowBackup="true"
         android:label="ActiveMap"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
 
         <activity
