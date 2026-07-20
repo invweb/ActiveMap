@@ -9,7 +9,8 @@ Kotlin Multiplatform app for beginners — add workout locations, get AI recomme
 
 ## Features
 
-- **OpenStreetMap** — real map tiles (CartoDB Voyager) with pan and zoom
+- **Custom Map Renderer** — no external map SDK, fully built on Jetpack Compose Canvas
+- **OpenStreetMap tiles** — CartoDB Voyager basemap (free, no API key required)
 - **Place markers with icons** — colored pins: 🌳 park, 🏟 stadium, 💪 gym, 🏃 street
 - **Add places** — name, type, description; coordinates set automatically from crosshair
 - **Navigate to place** — 📍 button centers the map on the selected place
@@ -25,11 +26,31 @@ Kotlin Multiplatform app for beginners — add workout locations, get AI recomme
 | Component | Technology |
 |---|---|
 | UI | Compose Multiplatform 1.7.1 |
-| Map | OpenStreetMap (CartoDB Voyager tiles) |
+| Map Renderer | Custom Compose Canvas (no external SDK) |
+| Map Tiles | OpenStreetMap via CartoDB (voyager + light_all) |
 | Storage | SQLDelight 2.0.2 |
 | Serialization | kotlinx.serialization |
 | Networking | java.net.HttpURLConnection |
 | Testing | Kotest 5.9.1 |
+
+### Custom Map Implementation
+
+The project implements a **from-scratch OpenStreetMap renderer** instead of using commercial map SDKs:
+
+```
+Map Architecture:
+├── OsmMapView.kt      # Core composable: Canvas rendering + Mercator projection
+├── OsmTileLoader.kt   # HTTP tile fetching with fallback + in-memory cache
+├── AndroidImageLoader.kt  # Platform-specific bitmap decoding (Android)
+└── DesktopImageLoader.kt  # Platform-specific bitmap decoding (Desktop)
+```
+
+**Key features:**
+- Mercator projection math (lon/lat ↔ tile coordinates)
+- 7×7 tile grid centered on user position
+- In-memory tile cache (no disk persistence)
+- Custom pin graphics with emoji icons
+- Platform-specific image loading via `expect`/`actual`
 
 ### Tile Providers
 
@@ -68,7 +89,7 @@ commonMain/
 ├── model/          # Place, Activity, Challenge, Recommendation, Report, Weather
 ├── engine/         # 12 recommendation rules (RuleEngine + sealed class Rule)
 ├── repository/     # SQLDelight DAO + reactive Flows
-├── map/            # OsmTileLoader + OsmMap composable (tiles + markers)
+├── map/            # Custom OSM renderer: OsmTileLoader + OsmMap composable
 ├── export/         # MarkdownExporter
 ├── platform/       # expect/actual: LocationProvider, WeatherProvider, FileExporter
 ├── ui/
@@ -122,7 +143,8 @@ Kotlin Multiplatform приложение для начинающих — доб
 
 ## Возможности
 
-- **Карта OpenStreetMap** — реальные тайлы (CartoDB Voyager) с панорамированием и зумом
+- **Кастомный рендерер карт** — без сторонних SDK, полностью на Jetpack Compose Canvas
+- **Тайлы OpenStreetMap** — CartoDB Voyager (бесплатно, без API ключа)
 - **Маркеры с иконками** — пины на карте с типами мест: 🌳 парк, 🏟 стадион, 💪 зал, 🏃 улица
 - **Добавление мест** — имя, тип, описание; координаты определяются автоматически
 - **Навигация к месту** — кнопка 📍 в списке мест перемещает карту к нему
@@ -138,11 +160,31 @@ Kotlin Multiplatform приложение для начинающих — доб
 | Компонент | Технология |
 |---|---|
 | UI | Compose Multiplatform 1.7.1 |
-| Карта | OpenStreetMap (CartoDB Voyager тайлы) |
+| Рендерер карт | Кастомный Compose Canvas (без сторонних SDK) |
+| Тайлы карт | OpenStreetMap через CartoDB (voyager + light_all) |
 | Хранение | SQLDelight 2.0.2 |
 | Сериализация | kotlinx.serialization |
 | Сеть | java.net.HttpURLConnection |
 | Тесты | Kotest 5.9.1 |
+
+### Кастомная реализация карт
+
+Проект реализует **собственный рендерер OpenStreetMap** вместо коммерческих SDK:
+
+```
+Архитектура карт:
+├── OsmMapView.kt      # Основной компонент: Canvas + меркаторская проекция
+├── OsmTileLoader.kt   # HTTP-загрузка тайлов с fallback + кэш в памяти
+├── AndroidImageLoader.kt  # Платформенная декодировка (Android)
+└── DesktopImageLoader.kt  # Платформенная декодировка (Desktop)
+```
+
+**Ключевые особенности:**
+- Математика меркаторской проекции (lon/lat ↔ координаты тайлов)
+- Сетка 7×7 тайлов, центрированная на позиции пользователя
+- Кэш тайлов в памяти (без дисковой персистентности)
+- Кастомная графика пинов с эмодзи
+- Платформенная загрузка изображений через `expect`/`actual`
 
 ### Тайл-провайдеры
 
@@ -181,7 +223,7 @@ commonMain/
 ├── model/          # Place, Activity, Challenge, Recommendation, Report, Weather
 ├── engine/         # 12 правил рекомендаций (RuleEngine + sealed class Rule)
 ├── repository/     # SQLDelight DAO + реактивные Flow
-├── map/            # OsmTileLoader + OsmMap composable (тайлы + маркеры)
+├── map/            # Кастомный OSM рендерер: OsmTileLoader + OsmMap composable
 ├── export/         # MarkdownExporter
 ├── platform/       # expect/actual: LocationProvider, WeatherProvider, FileExporter
 ├── ui/
